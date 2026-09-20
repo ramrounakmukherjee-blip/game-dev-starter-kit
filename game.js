@@ -389,13 +389,44 @@
     }
 
     drawCat() {
-      const p = clamp(this.catPressure, 0, 1); const x = W / 2 + Math.sin(this.elapsed * 1.8) * 17; const y = 570 + p * 56; const s = .95 + p * .35; ctx.save(); ctx.translate(x, y); ctx.scale(s, s); ctx.globalAlpha = .15 + p * .32; ctx.filter = `blur(${Math.max(0, 3 - p * 3)}px)`; this.drawCatShape(); ctx.filter = 'none'; ctx.restore();
-      if (p > .72) { ctx.save(); ctx.globalAlpha = (p - .72) * 1.6; ctx.fillStyle = '#ee8d6f'; ctx.beginPath(); ctx.arc(x - 15, y - 47, 3.5, 0, TAU); ctx.arc(x + 15, y - 47, 3.5, 0, TAU); ctx.fill(); ctx.restore(); }
+      // The cat stays behind the rat in the chase lane. Its back, ears, tail, and paws
+      // face the vanishing point so it reads as a pursuer, never as a cat staring at camera.
+      const p = clamp(this.catPressure, 0, 1);
+      const x = W / 2 + Math.sin(this.elapsed * 1.8) * (12 + p * 18);
+      const y = 504 + p * 92;
+      const s = .68 + p * .42;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(s, s);
+      ctx.globalAlpha = .28 + p * .5;
+      ctx.filter = `blur(${Math.max(0, 2.2 - p * 2.2)}px)`;
+      this.drawCatShape();
+      ctx.filter = 'none';
+      ctx.restore();
+      // A subtle backlight separates the stalking silhouette from the wet tunnel.
+      ctx.save();
+      ctx.globalAlpha = .08 + p * .16;
+      const glow = ctx.createRadialGradient(x, y + 5, 3, x, y + 5, 90 * s);
+      glow.addColorStop(0, '#d6f3b0'); glow.addColorStop(1, 'transparent');
+      ctx.fillStyle = glow; ctx.beginPath(); ctx.ellipse(x, y + 10, 82 * s, 42 * s, 0, 0, TAU); ctx.fill();
+      ctx.restore();
     }
 
     drawCatShape() {
-      ctx.fillStyle = '#020708'; ctx.beginPath(); ctx.ellipse(0, 21, 66, 45, 0, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.ellipse(0, -29, 40, 38, 0, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.moveTo(-35, -53); ctx.lineTo(-32, -93); ctx.lineTo(-8, -64); ctx.lineTo(8, -64); ctx.lineTo(32, -93); ctx.lineTo(36, -53); ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(121,180,146,.22)'; ctx.lineWidth = 2; ctx.stroke(); ctx.strokeStyle = '#020708'; ctx.lineWidth = 16; ctx.beginPath(); ctx.moveTo(47, 19); ctx.bezierCurveTo(105, -5, 99, -72, 65, -80); ctx.stroke();
-      ctx.fillStyle = '#ddf3ad'; ctx.beginPath(); ctx.arc(-14, -33, 4, 0, TAU); ctx.arc(14, -33, 4, 0, TAU); ctx.fill();
+      const stride = Math.sin(this.cat.run) * 8;
+      ctx.fillStyle = '#020708';
+      // Long rear-facing body and the back of the head.
+      ctx.beginPath(); ctx.ellipse(0, 13, 43, 59, 0, 0, TAU); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(0, -45, 31, 27, 0, 0, TAU); ctx.fill();
+      // Ears point toward the route ahead; there are deliberately no visible eyes.
+      ctx.beginPath(); ctx.moveTo(-27, -62); ctx.lineTo(-24, -101); ctx.lineTo(-4, -70); ctx.lineTo(4, -70); ctx.lineTo(24, -101); ctx.lineTo(27, -62); ctx.closePath(); ctx.fill();
+      // Tail curls behind the running cat, toward the camera.
+      ctx.strokeStyle = '#020708'; ctx.lineWidth = 17; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(31, 24); ctx.bezierCurveTo(82, 42, 94, 4, 75, -24); ctx.bezierCurveTo(64, -42, 75, -61, 91, -58); ctx.stroke();
+      // Paws animate toward the vanishing point.
+      ctx.strokeStyle = '#020708'; ctx.lineWidth = 13; ctx.beginPath(); ctx.moveTo(-24, 45,); ctx.lineTo(-30 - stride, 77); ctx.moveTo(24, 45); ctx.lineTo(30 + stride, 77); ctx.stroke();
+      // Cool rim light and collar catch the sewer lamps.
+      ctx.strokeStyle = 'rgba(153,216,170,.42)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 13, 43, 59, 0, 0, TAU); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-24, -25); ctx.quadraticCurveTo(0, -17, 24, -25); ctx.stroke();
+      ctx.strokeStyle = 'rgba(219,169,94,.7)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-26, -23, 26, -23); ctx.stroke();
     }
 
     drawRat() {
@@ -405,15 +436,22 @@
     drawRatShadow(jumpHeight) { ctx.save(); ctx.scale(1, .22); ctx.translate(0, 38 + jumpHeight * .5); const alpha = Math.max(.08, .35 - jumpHeight / 500); ctx.fillStyle = `rgba(0,0,0,${alpha})`; ctx.beginPath(); ctx.ellipse(0, 0, 48 - jumpHeight * .1, 18, 0, 0, TAU); ctx.fill(); ctx.restore(); }
 
     drawRatShape() {
-      // Tail first for depth.
-      ctx.strokeStyle = '#b26f53'; ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-31, 18); ctx.bezierCurveTo(-73, 42, -82, -8, -54, -36); ctx.bezierCurveTo(-39, -50, -59, -60, -67, -48); ctx.stroke(); ctx.strokeStyle = '#e39b73'; ctx.lineWidth = 2; ctx.stroke();
-      const body = ctx.createLinearGradient(-35, -38, 33, 35); body.addColorStop(0, '#c78965'); body.addColorStop(.5, '#875344'); body.addColorStop(1, '#482d2b'); ctx.fillStyle = body; ctx.beginPath(); ctx.ellipse(0, 12, 39, 27, -.1, 0, TAU); ctx.fill();
-      ctx.fillStyle = '#9d614c'; ctx.beginPath(); ctx.ellipse(31, -14, 27, 22, -.12, 0, TAU); ctx.fill();
-      ctx.fillStyle = '#d58d73'; ctx.beginPath(); ctx.arc(48, -25, 10, 0, TAU); ctx.arc(24, -34, 10, 0, TAU); ctx.fill(); ctx.fillStyle = '#8f4b47'; ctx.beginPath(); ctx.arc(49, -25, 6, 0, TAU); ctx.arc(24, -34, 6, 0, TAU); ctx.fill();
-      ctx.fillStyle = '#f0f4cb'; ctx.beginPath(); ctx.arc(42, -17, 4, 0, TAU); ctx.fill(); ctx.fillStyle = '#142018'; ctx.beginPath(); ctx.arc(43, -17, 2, 0, TAU); ctx.fill();
-      ctx.fillStyle = '#d28676'; ctx.beginPath(); ctx.arc(57, -9, 5, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(231,188,145,.58)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(56, -8); ctx.lineTo(82, -13); ctx.moveTo(56, -6); ctx.lineTo(83, -2); ctx.stroke();
-      ctx.strokeStyle = '#3b2927'; ctx.lineWidth = 7; ctx.beginPath(); ctx.moveTo(-18, 28); ctx.lineTo(-25, 48); ctx.moveTo(12, 32); ctx.lineTo(22, 50); ctx.stroke(); ctx.strokeStyle = '#dfaa7e'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-30, 49); ctx.lineTo(-18, 49); ctx.moveTo(18, 50); ctx.lineTo(30, 50); ctx.stroke();
-      ctx.strokeStyle = 'rgba(244,198,153,.35)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-9, -5); ctx.lineTo(10, 4); ctx.stroke();
+      // Rear view: the rat runs toward the vanishing point, so we see its back,
+      // ears, legs, and tail trailing toward us instead of a face looking at camera.
+      const stride = Math.sin(this.rat.run) * 8;
+      ctx.strokeStyle = '#b26f53'; ctx.lineWidth = 8; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(0, 30); ctx.bezierCurveTo(-11, 62, -55, 69, -61, 37); ctx.bezierCurveTo(-66, 13, -49, 1, -55, -17); ctx.stroke();
+      ctx.strokeStyle = '#e39b73'; ctx.lineWidth = 2; ctx.stroke();
+      const body = ctx.createLinearGradient(0, -48, 0, 48); body.addColorStop(0, '#c78965'); body.addColorStop(.48, '#875344'); body.addColorStop(1, '#482d2b'); ctx.fillStyle = body; ctx.beginPath(); ctx.ellipse(0, 9, 30, 43, 0, 0, TAU); ctx.fill();
+      // Back of the head: rounded ears make the travel direction unambiguous.
+      ctx.fillStyle = '#9d614c'; ctx.beginPath(); ctx.ellipse(0, -40, 25, 23, 0, 0, TAU); ctx.fill();
+      ctx.fillStyle = '#d58d73'; ctx.beginPath(); ctx.arc(-21, -51, 11, 0, TAU); ctx.arc(21, -51, 11, 0, TAU); ctx.fill();
+      ctx.fillStyle = '#8f4b47'; ctx.beginPath(); ctx.arc(-21, -51, 6, 0, TAU); ctx.arc(21, -51, 6, 0, TAU); ctx.fill();
+      // Hind legs cycle as the runner advances.
+      ctx.strokeStyle = '#3b2927'; ctx.lineWidth = 7; ctx.beginPath(); ctx.moveTo(-15, 34); ctx.lineTo(-22 - stride, 57); ctx.moveTo(15, 34); ctx.lineTo(22 + stride, 57); ctx.stroke();
+      ctx.strokeStyle = '#dfaa7e'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-30 - stride, 58); ctx.lineTo(-17 - stride, 58); ctx.moveTo(17 + stride, 58); ctx.lineTo(30 + stride, 58); ctx.stroke();
+      // A soft dorsal highlight reads as fur without introducing a face.
+      ctx.strokeStyle = 'rgba(244,198,153,.35)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, -20); ctx.lineTo(0, 26); ctx.stroke();
     }
 
     drawAtmosphere() {
