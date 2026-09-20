@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071012">
+  <meta name="description" content="Rat Run — a cinematic endless sewer chase.">
+  <title>RAT RUN // Midnight Escape</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell" id="appShell">
+    <header class="topbar">
+      <div class="brand-lockup" aria-label="Rat Run">
+        <div class="brand-mark" aria-hidden="true"><span></span></div>
+        <div>
+          <p class="eyebrow">NIGHT SHIFT / RUN 01</p>
+          <h1>RAT <span>RUN</span></h1>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <span class="live-pill"><i></i> LIVE CHASE</span>
+        <button class="icon-button" id="soundToggle" type="button" aria-label="Turn sound off" aria-pressed="true">◖</button>
+        <button class="icon-button" id="fullscreenButton" type="button" aria-label="Toggle fullscreen">⛶</button>
+      </div>
+    </header>
+
+    <section class="game-frame" aria-label="Rat Run game">
+      <canvas id="gameCanvas" width="1280" height="720" aria-label="A rat running through a moonlit sewer while a cat chases it"></canvas>
+
+      <div class="hud" id="hud" aria-live="polite">
+        <div class="stat-card score-stat">
+          <span class="stat-label">SCORE</span>
+          <strong id="scoreValue">000000</strong>
+        </div>
+        <div class="stat-card distance-stat">
+          <span class="stat-label">DISTANCE</span>
+          <strong><span id="distanceValue">0</span><small> m</small></strong>
+        </div>
+        <div class="chase-stat">
+          <div class="chase-label"><span>CAT DISTANCE</span><span id="catStatus">CLEAR</span></div>
+          <div class="meter"><span id="catMeter"></span></div>
+        </div>
+      </div>
+
+      <div class="scene-vignette" aria-hidden="true"></div>
+      <div class="flash-layer" id="flashLayer" aria-hidden="true"></div>
+
+      <section class="game-panel active" id="startPanel" role="dialog" aria-modal="true" aria-labelledby="startTitle">
+        <div class="panel-grid">
+          <div class="panel-copy">
+            <div class="status-tag"><span class="pulse-dot"></span> SIGNAL ACQUIRED · 02:17 AM</div>
+            <h2 id="startTitle">THE LAST<br><em>SCURRY</em></h2>
+            <p class="panel-lead">The city sleeps. The sewer doesn't.</p>
+            <p class="panel-body">Run the flood channel, thread the light, and stay one whisker ahead of the thing behind you.</p>
+            <button class="primary-button" id="startButton" type="button"><span>START THE RUN</span><b>↗</b></button>
+            <div class="control-strip" aria-label="Controls">
+              <div><kbd>←</kbd><kbd>→</kbd><span>switch lanes</span></div>
+              <div><kbd>↑</kbd><kbd>SPACE</kbd><span>jump</span></div>
+              <div><kbd>↓</kbd><span>slide</span></div>
+              <div><kbd>P</kbd><span>pause</span></div>
+            </div>
+          </div>
+          <div class="panel-side start-side">
+            <div class="radar-ring"><div class="radar-sweep"></div><span class="radar-blip blip-a"></span><span class="radar-blip blip-b"></span><span class="radar-center"></span></div>
+            <p class="side-kicker">THREAT PROFILE</p>
+            <p class="side-title">FELIS CATUS<br><span>UNKNOWN BREED</span></p>
+            <div class="signal-row"><span>PROXIMITY</span><strong>HIGH</strong></div>
+            <div class="signal-row"><span>VISIBILITY</span><strong>LOW</strong></div>
+            <div class="side-note">Keep moving. The wet tells are real.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="game-panel compact-panel" id="pausePanel" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+        <div class="pause-icon"><span></span><span></span></div>
+        <div class="status-tag">MOTION FROZEN</div>
+        <h2 id="pauseTitle">HOLD<br><em>THAT THOUGHT</em></h2>
+        <p class="panel-body">The sewer is still. The cat is not.</p>
+        <div class="panel-actions">
+          <button class="primary-button" id="resumeButton" type="button"><span>RESUME RUN</span><b>▶</b></button>
+          <button class="ghost-button" id="quitButton" type="button">QUIT TO MENU</button>
+        </div>
+        <p class="micro-copy">Press <kbd>P</kbd> or <kbd>ESC</kbd> to resume</p>
+      </section>
+
+      <section class="game-panel compact-panel" id="gameOverPanel" role="dialog" aria-modal="true" aria-labelledby="gameOverTitle">
+        <div class="status-tag danger-tag"><span class="pulse-dot"></span> SIGNAL LOST</div>
+        <h2 id="gameOverTitle">THE CAT<br><em>CAUGHT UP</em></h2>
+        <p class="panel-body" id="gameOverBlurb">One bad step in the dark. The sewer keeps your secret.</p>
+        <div class="results-grid">
+          <div><span>SCORE</span><strong id="finalScore">000000</strong></div>
+          <div><span>DISTANCE</span><strong id="finalDistance">0m</strong></div>
+          <div><span>BEST</span><strong id="bestScore">000000</strong></div>
+        </div>
+        <button class="primary-button" id="retryButton" type="button"><span>RUN IT BACK</span><b>↻</b></button>
+        <p class="micro-copy">The alley remembers. You don't have to.</p>
+      </section>
+
+      <div class="run-tip" id="runTip" aria-live="polite">WATCH THE LIGHTS <span>·</span> THEY WARN YOU FIRST</div>
+      <div class="touch-controls" aria-label="Optional touch controls">
+        <button type="button" data-action="left" aria-label="Move left">←</button>
+        <button type="button" data-action="jump" aria-label="Jump">↑</button>
+        <button type="button" data-action="slide" aria-label="Slide">↓</button>
+        <button type="button" data-action="right" aria-label="Move right">→</button>
+      </div>
+    </section>
+
+    <footer class="footer-note"><span>RAT RUN / MIDNIGHT ESCAPE</span><span>PROCEDURAL CINEMATIC BUILD <i>◆</i></span></footer>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>
